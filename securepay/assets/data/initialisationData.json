@@ -1,0 +1,69 @@
+{
+    "promotionAddEditFormInitialisationData": {
+      "hotel": {
+        "id": 1490,
+        "name": "SecurePay Demo",
+        "currency": "AED",
+        "currencyFormat": "#,####,##0.00"
+      },
+      "bccDepartments": [{
+        "id": 0,
+        "name": "Default",
+        "users": []
+      }],
+      "templateDepartments": [{
+        "id": 1494,
+        "name": "Default",
+        "templates": [{
+          "id": 1600,
+          "name": "Default Template"
+        }
+        ]
+      }
+      ],
+      "templates": [
+      {
+        "id": 1600,
+        "name": "Default Template",
+        "html": "<table id=\"promotion\">\n\t    <tbody>\n\t        <tr>\n\t\t\t\t<td class=\"text-center\">\n\t\t\t\t\t<img class=\"promotion-image top10 bottom20\" alt=\"${hotelName}\" title=\"${hotelName}\" src=\"https://${securePayUrl}${securePayHttpsPort}/resources/hotels/${hotelCode}/images/${hotelCode}-logo.png\">\n\t\t\t\t</td>\n\t        </tr>\n\t        <tr>\n\t            <td>\n\t                <p><h4 class=\"promotion-title\">[-name-]</h4></p>\n\t            </td>\n\t        </tr>\n\t        <tr>\n\t            <td>\n\t                <span class=\"promotion-text\">[-promotionText-]</span>\n\t            </td>\n\t        </tr>\n\t        <tr>\n\t            <td class=\"promotion-options\">\n\t                [-previewOptions-]\n\t            </td>\n\t        </tr>\n\t        <tr>\n\t            <td>\n\t                <p><b class=\"counter-list total\"><span class=\"key\">Total To Pay</span><span class=\"value\"><span class=\"parameter_currency\">[-hotel.currency-]</span> <span class=\"parameter_amount\">[-amount-]</span></span></b></p>\n\t            </td>\n\t        </tr>\n\t        <tr>\n\t            <td>\n\t                <p class=\"top20\"><input type=\"checkbox\" id=\"acceptT&C\" name=\"acceptT&C\"><label for=\"acceptT&C\">I accept the [-hotel.name-]<a class=\"termsAndConditionsLink\"> Terms &amp; Conditions of Payment</a>.</label></p>\n\t            </td>\n\t        </tr>\n\t        <tr>\n\t            <td class=\"text-center\">\n\t            \t<a href=\"#\" class=\"${purchase.transactionTypeExpected}Button payPreAuthButton btn btn-success btn-sm disabled bottom20\" data-paymentProcessor=\"${paymentProcessor}\">Pay <span class=\"parameter_currency\">[-hotel.currency-]</span>&nbsp;<span class=\"parameter_amount\">[-amount-]</span></a>\n\t            </td>\n\t        </tr>\n\t        <tr>\n\t            <td>\n\t                <p>For any enquiries, or if you have any concerns about the authenticity of this email, please contact the <span class=\"contact\">[-contactName-]</span> at [-hotel.name-] at <a class=\"email\" href=\"mailto:[-contactEmail-]\">[-contactEmail-]</a> or by telephone on <a class=\"tel\" href=\"tel:[-contactPhone-]\">[-contactPhone-]</a>, or see answers to the Frequently Asked Questions below.</p>\n\t                <p>Kind Regards,<br>[-hotel.name-]</p>\n\t            </td>\n\t        </tr>\n\t        <tr>\n\t            <td>\n\t                <span class=\"footer-text\">[-footerText-]</span>\n\t            </td>\n\t        </tr>\n\t    </tbody>\n\t</table>"
+      }
+      ],
+      "categories": [{
+        "name": "Personal Info.",
+        "description": "Required personal information",
+        "questions": [{
+          "shortTextQuestion": {
+            "title": "First Name",
+            "description": "Your first name",
+            "mandatory": true,
+            "contentType": "text"
+          }
+        },
+        {
+          "shortTextQuestion": {
+            "title": "Last Name",
+            "description": "Your surname",
+            "mandatory": true,
+            "contentType": "text"
+          }
+        },
+        {
+          "shortTextQuestion": {
+            "title": "Email",
+            "description": "Your email address",
+            "mandatory": true,
+            "contentType": "emailAddress"
+          }
+        },
+        {
+          "shortTextQuestion": {
+            "title": "Phone",
+            "description": "Your phone number",
+            "mandatory": false,
+            "contentType": "phoneNumber"
+          }
+        }
+        ]
+      }]
+    }
+  }

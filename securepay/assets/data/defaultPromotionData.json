@@ -1,0 +1,479 @@
+{
+    "id": 2587,
+    "name": "Pilot Offer Promotion 111",
+    "hotel": {
+      "id": 262,
+      "name": "SOFITEL Dubai Jumeirah Beach",
+      "currency": "AED",
+      "currencyFormat": "#,####,##0.00"
+    },
+    "department": {
+      "id": 1493,
+      "name": "Management"
+    },
+    "displayTemplate": {
+      "id": 2558,
+      "name": "Pilot Offer Template",
+      "description": "The Sofitel Dubai Jumeirah Beach pilot offer template"
+    },
+    "taxes": [
+      {
+        "id": 3916,
+        "tax": {
+          "id": 3917,
+          "name": "Service Charge",
+          "taxType": "percentage"
+        },
+        "amount": 10.0000
+      },
+      {
+        "id": 3918,
+        "tax": {
+          "id": 3919,
+          "name": "VAT",
+          "taxType": "percentage"
+        },
+        "amount": 5.0000
+      },
+      {
+        "id": 3920,
+        "tax": {
+          "id": 3921,
+          "name": "Set Fee 1",
+          "taxType": "absolute"
+        },
+        "amount": 20.0000
+      }
+    ],
+    "multiplePurchasesAllowed": {
+      "maximum": 0,
+      "minimum": 0
+    },
+    "maxAttendeesPerDate":99,
+    "promotionDates": {
+      "staticDates":{
+        "dates":["2021-05-25", "2021-05-26"]
+      }
+    },
+    "promotionText": "This is the promotion text with a <a href='https://website.com'>link</a> embedded in the text...",
+    "contactName": "Bianca Nastase",
+    "contactEmail": "h6146-sl@sofitel.com",
+    "contactPhone": "+98 765 43 2100",
+    "footerText": "This is the footer text with a <b>bold</b> word that is also <span style='color:green;'>green</span>.",
+    "notifyEmails": [
+      "bcc_2@email.com",
+      "bcc_1@email.com"
+    ],
+    "activeDateRange": {
+      "minimum": "2021-06-01",
+      "maximum": "2021-08-31"
+    },
+    "customCSS": "input[name='acceptT&C'] + span { font-weight: bold; color: red; }",
+    "categories": [{
+      "id": 3914,
+      "name": "Category 1",
+      "description": "Description of category 1.",
+      "showHeadings": false,
+      "questions": [{
+        "dateQuestion": {
+          "id": 3915,
+          "title": "Same as Promotion Date Question",
+          "description": "Date question that uses promotion dates",
+          "showHeadings": true,
+          "mandatory": true,
+          "basePrices": {
+            "sunday": 50,
+            "monday": 50,
+            "tuesday": 50,
+            "wednesday": 50,
+            "thursday": 50,
+            "friday": 50,
+            "saturday": 50
+          },
+          "pricingMethod": "perNight",
+          "possibleDates":{
+            "staticDatesWithPricing":
+              {"dates":{
+                "2021-05-25":10,
+                "2021-05-26":0
+              },
+              "tempId":"0b3knsqcdhxgtw05iw0ikgamt2lxfwss"
+            }
+          },
+          "taxes": [
+            {
+              "id": 3916,
+              "tax": {
+                "id": 3917,
+                "name": "Service Charge",
+                "taxType": "percentage"
+              },
+              "amount": 10.0000
+            },
+            {
+              "id": 3918,
+              "tax": {
+                "id": 3919,
+                "name": "VAT",
+                "taxType": "percentage"
+              },
+              "amount": 5.0000
+            },
+            {
+              "id": 3920,
+              "tax": {
+                "id": 3921,
+                "name": "Set Fee 1",
+                "taxType": "absolute"
+              },
+              "amount": 20.0000
+            },
+            {
+              "id": 4000,
+              "tax": {
+                "tempID": "0ooonsqcdhxgtw05gw0ikgamt2lxfwss",
+                "name": "State Duty",
+                "taxType": "absolute"
+              },
+              "amount": 15.0000
+            }
+          ],
+          "selectMultiple": {
+            "minimum": 1,
+            "maximum": 4
+          },
+          "selectMultipleType": "dateRange",
+          "buyMultiple": {
+            "minimum": 1,
+            "maximum": 10
+          }
+        }
+      },
+      {
+        "multiChoiceQuestion": {
+          "id": 2591,
+          "title": "Occupancy",
+          "description": "The number of people staying",
+          "mandatory": true,
+          "options": [{
+            "id": 2592,
+            "title": "Single",
+            "description": "1 person per room",
+            "cost": 0.0000
+          },
+          {
+            "id": 2593,
+            "title": "Double",
+            "description": "2 people per room",
+            "cost": 0.0000
+          },
+          {
+            "id": 2594,
+            "title": "Triple",
+            "description": "3 people per room",
+            "cost": 0.0000
+          }
+          ],
+          "selectMultiple": false,
+          "buyMultiple": false
+        }
+      },
+      {
+        "multiChoiceQuestion": {
+          "id": 2595,
+          "title": "Room Type",
+          "description": "The type of room to book",
+          "mandatory": true,
+          "displayCriteria": {
+            "id": 2630,
+            "comparisonQuestion": 2591,
+            "comparisonType": "equalTo",
+            "comparisonValue": "Single"
+          },
+          "options": [{
+            "id": 2596,
+            "title": "Single Standard",
+            "description": "A 1-person standard room",
+            "cost": 1200.0000
+          },
+          {
+            "id": 2597,
+            "title": "Single Luxury",
+            "description": "A 1-person luxury room",
+            "cost": 1300.0000
+          },
+          {
+            "id": 2598,
+            "title": "Single Suite",
+            "description": "A 1-person suite",
+            "cost": 1500.0000
+          }
+          ],
+          "selectMultiple": true,
+          "buyMultiple": true,
+          "pricingDependsOn": 2590
+        }
+      },
+      {
+        "multiChoiceQuestion": {
+          "id": 2605,
+          "title": "Room Type",
+          "description": "The type of room to book",
+          "mandatory": true,
+          "displayCriteria": {
+            "id": 2631,
+            "comparisonQuestion": 2591,
+            "comparisonType": "equalTo",
+            "comparisonValue": "Double"
+          },
+          "options": [{
+            "id": 2606,
+            "title": "Double Standard",
+            "description": "A 2-person standard room",
+            "cost": 2200.0000
+          },
+          {
+            "id": 2607,
+            "title": "Double Luxury",
+            "description": "A 2-person luxury room",
+            "cost": 2300.0000
+          },
+          {
+            "id": 2608,
+            "title": "Double Suite",
+            "description": "A 2-person suite",
+            "cost": 2500.0000
+          }
+          ],
+          "selectMultiple": true,
+          "buyMultiple": true,
+          "pricingDependsOn": 2590
+        }
+      },
+      {
+        "multiChoiceQuestion": {
+          "id": 2609,
+          "title": "Room Type",
+          "description": "The type of room to book",
+          "mandatory": true,
+          "displayCriteria": {
+            "id": 2632,
+            "comparisonQuestion": 2591,
+            "comparisonType": "equalTo",
+            "comparisonValue": "Triple"
+          },
+          "options": [{
+            "id": 2610,
+            "title": "Triple Standard",
+            "description": "A 3-person standard room",
+            "cost": 3200.0000
+          },
+          {
+            "id": 2611,
+            "title": "Triple Luxury",
+            "description": "A 3-person luxury room",
+            "cost": 3300.0000
+          },
+          {
+            "id": 2612,
+            "title": "Triple Suite",
+            "description": "A 3-person suite",
+            "cost": 3500.0000
+          }
+          ],
+          "selectMultiple": true,
+          "buyMultiple": true,
+          "pricingDependsOn": 2590
+        }
+      },
+      {
+        "multiChoiceQuestion": {
+          "id": 2613,
+          "title": "Booking Type",
+          "description": "The type of booking to make (Single Room)",
+          "mandatory": true,
+          "displayCriteria": {
+            "id": 2630,
+            "comparisonQuestion": 2591,
+            "comparisonType": "equalTo",
+            "comparisonValue": "Single"
+          },
+          "options": [{
+            "id": 2614,
+            "title": "Room Only",
+            "description": "Just the room",
+            "cost": 0.0000
+          },
+          {
+            "id": 2615,
+            "title": "Half Board",
+            "description": "Room + breakfast",
+            "cost": 100.0000
+          },
+          {
+            "id": 2616,
+            "title": "Full Board",
+            "description": "Room + breakfast + dinner",
+            "cost": 150.0000
+          }
+          ],
+          "selectMultiple": false,
+          "buyMultiple": false,
+          "pricingDependsOn": 2590
+        }
+      },
+      {
+        "multiChoiceQuestion": {
+          "id": 2617,
+          "title": "Booking Type",
+          "description": "The type of booking to make (Double Room)",
+          "mandatory": true,
+          "displayCriteria": {
+            "id": 2631,
+            "comparisonQuestion": 2591,
+            "comparisonType": "equalTo",
+            "comparisonValue": "2593"
+          },
+          "options": [{
+            "id": 2618,
+            "title": "Room Only",
+            "description": "Just the room",
+            "cost": 0.0000
+          },
+          {
+            "id": 2619,
+            "title": "Half Board",
+            "description": "Room + breakfast",
+            "cost": 200.0000
+          },
+          {
+            "id": 2620,
+            "title": "Full Board",
+            "description": "Room + breakfast + dinner",
+            "cost": 300.0000
+          }
+          ],
+          "selectMultiple": false,
+          "buyMultiple": false,
+          "pricingDependsOn": 2590
+        }
+      },
+      {
+        "multiChoiceQuestion": {
+          "id": 2621,
+          "title": "Booking Type",
+          "description": "The type of booking to make (Triple Room)",
+          "mandatory": true,
+          "displayCriteria": {
+            "id": 2632,
+            "comparisonQuestion": 2591,
+            "comparisonType": "equalTo",
+            "comparisonValue": "2594"
+          },
+          "options": [{
+            "id": 2622,
+            "title": "Room Only",
+            "description": "Just the room",
+            "cost": 0.0000
+          },
+          {
+            "id": 2623,
+            "title": "Half Board",
+            "description": "Room + breakfast",
+            "cost": 300.0000
+          },
+          {
+            "id": 2624,
+            "title": "Full Board",
+            "description": "Room + breakfast + dinner",
+            "cost": 450.0000
+          }
+          ],
+          "selectMultiple": false,
+          "buyMultiple": false,
+          "taxes": [{
+            "id": 2599,
+            "tax": {
+              "id": 2600,
+              "name": "Service Charge",
+              "taxType": "percentage"
+            },
+            "amount": 10.0000
+          },
+          {
+            "id": 2601,
+            "tax": {
+              "id": 2602,
+              "name": "VAT",
+              "taxType": "percentage"
+            },
+            "amount": 5.5000
+          },
+          {
+            "id": 2603,
+            "tax": {
+              "id": 2604,
+              "name": "Municipality Fee",
+              "taxType": "percentage"
+            },
+            "amount": 5.0000
+          }
+          ],
+          "pricingDependsOn": 2590
+        }
+      }
+      ]
+    },
+    {
+      "id": 2625,
+      "name": "Personal Information",
+      "description": "Required personal information",
+      "questions": [{
+        "shortTextQuestion": {
+          "id": 2626,
+          "title": "First Name",
+          "description": "Your first name",
+          "mandatory": true,
+          "contentType": "text"
+        }
+      },
+      {
+        "shortTextQuestion": {
+          "id": 2627,
+          "title": "Last Name",
+          "description": "Your surname",
+          "mandatory": true,
+          "contentType": "text"
+        }
+      },
+      {
+        "shortTextQuestion": {
+          "id": 2628,
+          "title": "Email",
+          "description": "Your email address",
+          "mandatory": true,
+          "contentType": "emailAddress"
+        }
+      },
+      {
+        "shortTextQuestion": {
+          "id": 2629,
+          "title": "Phone",
+          "description": "Your phone number",
+          "mandatory": false,
+          "contentType": "phoneNumber"
+        }
+      }
+      ]
+    }
+    ],
+    "uuid": "6685cab6-d71b-4c0a-8677-03a4c07cd2a9",
+    "promotionLink": "/promotion/fa20aff4-4102-4450-b7a1-57f6808927e5",
+    "enabled": true,
+    "createdBy": {
+      "id": 270,
+      "username": "sofitelDubaiJumeirahBeach_pd",
+      "firstName": "Phil",
+      "lastName": "Duhs"
+    }
+  }
