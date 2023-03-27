@@ -27,7 +27,7 @@
         </div>
     
         <!-- Screen overlay mask -->
-        <div id="mask" class="background" style="visibility:hidden"></div>
+        <div id="mask" class="background" style="visibility:hidden">
     
         <!-- Configuration File Dialog -->
         <div id="configdlg" class="modal" style="visibility:hidden">
@@ -90,6 +90,7 @@
             </table>
         </div>
 
+    </div>
         
         <!-- end html -->
 
@@ -1011,9 +1012,9 @@
                 border: 1px solid gray;
                 padding: 10px;
                 display: block;
-                position: absolute;
-                top: 30px;
-                left: 250px;
+                /* position: absolute; */
+                /* top: 30px;
+                left: 250px; */
             }
 
             .background {
@@ -1041,6 +1042,8 @@
                 top: 0;
                 left: 0;
                 color: white;
+                justify-content: center;
+                align-items: center;
             }
 
             .inputfile {
