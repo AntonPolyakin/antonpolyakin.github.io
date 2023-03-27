@@ -481,14 +481,14 @@
                 if (recording) {
                     recording = 0;
                     paused = 0;
-                    $("runbutton").innerHTML = "Run";
+                    $("runbutton").innerHTML = "Старт";
                     window.cancelAnimationFrame(anireq);
                     closedown();
                 }
                 else {
                     recording = 1;
                     paused = 0;
-                    $("runbutton").innerHTML = "Stop";
+                    $("runbutton").innerHTML = "Стоп";
                     signal = new Array();
                     track = new Array();
                     anallen = SRATE / 20;
