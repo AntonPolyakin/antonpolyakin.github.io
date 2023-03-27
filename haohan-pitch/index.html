@@ -781,8 +781,8 @@
             // set sizes of graphs to fit screen
             function doresize() {
                 // main div
-                var mwidth = screensize().width - 2;
-                var mheight = screensize().height - 95;
+                var mwidth = document.querySelector('.tn-atom.tn-atom__html').offsetWidth;//screensize().width - 2;
+                var mheight = document.querySelector('.tn-atom.tn-atom__html').offsetHeight - 95;//screensize().height - 95;
                 $("main").style.width = mwidth + "px"; //main
                 $("main").style.height = mheight + "px"; //main
 
