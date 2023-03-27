@@ -781,10 +781,10 @@
             // set sizes of graphs to fit screen
             function doresize() {
                 // main div
-                var mwidth = document.querySelector(".amp-container").offsetWidth;
-                var mheight = document.querySelector(".amp-container").offsetHeight - 95;
-                $("main").style.width = mwidth + "px";
-                $("main").style.height = mheight + "px";
+                var mwidth = screensize().width - 2;
+                var mheight = screensize().height - 95;
+                $("main").style.width = mwidth + "px"; //main
+                $("main").style.height = mheight + "px"; //main
 
                 canvas = $("cnv");
                 canvas.style.width = (mwidth) + "px";
