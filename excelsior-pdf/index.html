@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excelsior PDF</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@latest/legacy/build/pdf.min.js"></script>
+    <script src="../dist/excelsior-pdf.umd.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsnview/build/index.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jsnview/build/index.min.js"></script>
+    <script>
+        window.addEventListener("DOMContentLoaded", async function () {
+            var cache = {};
+            var fileInfo = document.querySelector(".file-info");
+            var fullPage = document.querySelector(".full-page");
+            var fileInput = document.querySelector('input[type="file"]');
+
+            var currentPage = 1;
+            var totalPages = 1;
+
+            let excelsiorPdf = window.ExcelsiorPDF.init({
+                pdfjs: pdfjsLib,
+                workerSrc: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@latest/legacy/build/pdf.worker.min.js'
+            });
+            var excelsiorPdfResults;
+
+            //handle input change
+            fileInput.addEventListener("change", function (ev) {
+                getFileInfo();
+            });
+
+            //handle drag
+            document.addEventListener("dragover", function (ev) {
+                ev.preventDefault();
+                fullPage.style.display = "block";
+                fullPage.style.opacity = 1;
+            });
+
+            //handle drop
+            document.addEventListener("drop", function (ev) {
+                ev.preventDefault();
+                fullPage.style.opacity = 0;
+                fullPage.style.display = "none";
+                getFileInfo(ev);
+            });
+
+            // document.addEventListener("dragend", function (ev) {
+            //     ev.preventDefault();
+            //     fullPage.style.opacity = 0;
+            //     fullPage.style.display = "none";
+            // });
+
+            fullPage.addEventListener("dragleave", function (ev) {
+                ev.preventDefault();
+                fullPage.style.opacity = 0;
+                fullPage.style.display = "none";
+            });
+
+            function getFileInfo(ev) {
+                //chnage the var depending on the execution context
+                var input = ev ? ev.dataTransfer.files[0] : fileInput.files[0];
+                fileInfo.innerHTML = "File name: " + input.name + "<br>";
+                fileInfo.innerHTML += "File size: " + prettifyFileSize(input.size) + "<br>";
+                fileInfo.innerHTML += "File type: " + input.type.split("/")[1] + "<br>";
+                fileInfo.style.opacity = 1;
+            }
+
+            function prettifyFileSize(size) {
+                if (size < 1048576) {
+                    return (size / 1024).toFixed(2) + "KB";
+                } else if (size < 1073741824) {
+                    return (size / 1048576).toFixed(2) + "MB";
+                } else {
+                    return (size / 1073741824).toFixed(2) + "GB";
+                }
+            }
+
+
+            function handleFile(e) {
+                //jsonResultElement.textContent = 'Transfering file...';
+                var files = e.target.files;
+                var file = files[0];
+
+                console.log('file', file);
+
+                var reader = new FileReader();
+                var fileByteArray = [];
+                var name = file.name;
+                reader.onload = function (e) {
+                    //jsonResultElement.textContent = 'Parsing PDF...';
+                };
+                reader.readAsArrayBuffer(file);
+                reader.onloadend = async function (evt) {
+                    if (evt.target.readyState == FileReader.DONE) {
+                        var arrayBuffer = evt.target.result,
+                            array = new Uint8Array(arrayBuffer);
+                        for (var i = 0; i < array.length; i++) {
+                            fileByteArray.push(array[i]);
+                        }
+                    }
+
+
+                    await extractFile(fileByteArray);
+                }
+
+            }
+
+            fileInput.addEventListener('change', handleFile, false);
+
+            async function extractFile(fileByteArray) {
+                try {
+                    let res = await excelsiorPdf.extractorRun(fileByteArray);
+                    excelsiorPdfResults = res
+                    console.log(res);
+                    currentPage = 1;
+                    totalPages = excelsiorPdfResults.extractorResults.numPages;
+                    await setPage(currentPage);
+                } catch (error) {
+                    console.error(error)
+                }
+            }
+
+            function initCards() {
+                var cards = [...document.querySelector('.cards').querySelectorAll('.card')];
+                cards.forEach(card => {
+                    let id = card.dataset.id;
+                    let link = card.querySelector('a');
+
+                    let isCard = (card) => id && !card.classList.contains('more')
+
+                    if (isCard(card)) {
+                        let url = `./src/pdf/${id}.pdf`;//'https://camelot-py.readthedocs.io/en/master/_static/pdf/foo.pdf'
+                        if (!link.href) {
+                            link.href = url;
+                        }
+                        card.firstElementChild.onclick = async (e) => {
+
+                            let fileByteArray = await (await fetch(url)).arrayBuffer();
+                            await extractFile(fileByteArray);
+
+                            card.classList.add('selected');
+                            cards.forEach(c => {
+                                if (c != card) {
+                                    c.classList.remove('selected');
+                                }
+                            });
+                        };
+                    }
+                })
+            }
+
+
+            async function renderPage(pageNum) {
+                const pdf = excelsiorPdfResults.documentProxy;
+
+                // Load the first page.
+                const page = await pdf.getPage(pageNum);
+
+                const scale = 1;
+                const viewport = page.getViewport({ scale });
+
+                // Get the canvas element and set its size based on the PDF page.
+                const canvas = document.getElementById('pdf');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // Render the page into the canvas.
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport,
+                };
+                await page.render(renderContext).promise;
+                console.log('Page rendered!');
+            }
+
+            function setJSONTree(pageNum) {
+                // Default options
+                const options = {
+                    showLen: false,
+                    showType: false,
+                    showBrackets: true,
+                    showFoldmarker: false,
+                    colors: { boolean: '#ff2929', null: '#ff2929', string: '#690', number: '#905', float: '#002f99' }
+                }
+
+                let data = excelsiorPdfResults ? excelsiorPdfResults.extractorResults.pageTables[currentPage - 1].tableGroups.map(tableGroup => {
+                    return tableGroup.tableData.table.json;
+                }) : {};
+
+                const treeView = jsnview(data || {}, options); // returns HTMLElement
+
+                let jsonElement = document.querySelector('#tab-html ~ .tab .json');
+                jsonElement.innerHTML = '';
+                jsonElement.appendChild(treeView);
+            }
+
+            function setHTML(pageNum) {
+                let html = excelsiorPdfResults.extractorResults.pageTables[currentPage - 1].tableGroups.map(tableGroup => {
+                    return tableGroup.tableData.table.html
+                }).join('<br>');
+                let htmlElement = document.querySelector('#tab-html ~ .tab .html');
+                htmlElement.innerHTML = html;
+            }
+
+            async function setPage(pageNum) {
+                let currentPageCounter = document.querySelector('.current-page');
+                let totalPagesCounter = document.querySelector('.total-pages');
+
+                if ((pageNum <= +totalPages) && (pageNum >= 1)) {
+                    currentPageCounter.textContent = currentPage = pageNum;
+                    if (excelsiorPdfResults) {
+                        paginationButtonsHandler(pageNum)
+                        setJSONTree(currentPage);
+                        setHTML(pageNum);
+                        await renderPage(currentPage);
+                        let placeholder = document.querySelector('.preview-placeholder');
+                        let container = document.querySelector('.preview-container');
+                        if (!placeholder.classList.contains('hidden')) {
+                            placeholder.classList.add('hidden');
+                            container.classList.remove('hidden');
+                        }
+
+                    }
+                }
+                totalPagesCounter.textContent = totalPages;
+
+            }
+
+            function paginationButtonsHandler(pageNum) {
+                let prev = document.querySelector('.pagination .prev');
+                let next = document.querySelector('.pagination .next');
+                pageNum = pageNum || 1;
+                if ((pageNum <= totalPages) && (pageNum >= 1)) {
+                    if (pageNum == 1 && pageNum < totalPages) {
+                        prev.setAttribute('disabled', true);
+                        if (totalPages > 1) {
+                            next.removeAttribute('disabled');
+                        }
+                    } else if (pageNum == totalPages) {
+                        next.setAttribute('disabled', true);
+                        if (totalPages > 1) {
+                            prev.removeAttribute('disabled');
+                        }else{
+                            prev.setAttribute('disabled', true);
+                        }
+                    } else {
+                        prev.removeAttribute('disabled');
+                        next.removeAttribute('disabled');
+                    }
+                } 
+            }
+
+            function initPagination() {
+                let prev = document.querySelector('.pagination .prev');
+                let next = document.querySelector('.pagination .next');
+
+                prev.onclick = async () => {
+                    let pageNum = currentPage - 1;
+                    paginationButtonsHandler(pageNum);
+                    await setPage(pageNum);
+                };
+                next.onclick = async () => {
+                    let pageNum = currentPage + 1;
+                    paginationButtonsHandler(pageNum);
+                    await setPage(pageNum);
+                };
+                paginationButtonsHandler(currentPage);
+            }
+
+            initCards();
+            setJSONTree();
+            initPagination();
+
+
+
+        });
+
+    </script>
+
+</head>
+
+<body>
+    <div class="logo-title-container">
+        <div></div>
+        <div class="logo"></div>
+        <a class="gitlink" href="https://github.com/ronnywang/pdf-table-extractor">
+            <img class="gitimg" src="src/img/img.jpg" alt="Fork me on GitHub">
+        </a>
+    </div>
+
+    <p class="text">Tired of manually copying data from PDFs? Reclaim your time! Your Exelsior PDF effortlessly pulls tables from your PDFs, delivering accurate data in JSON or HTML - ready for analysis!</p>
+    <div class="dropbox">
+
+        <form>
+            <div class="full-page">
+                Drop your PDF file here...
+            </div>
+            <div class="file">
+                <span>Drag and drop you PDF file here.</span>
+                <input type="file" accept="application/pdf">
+            </div>
+        </form>
+        <div class="file-info"></div>
+
+        <br>
+
+        <center>
+            <h2>Or Choose from these samples:</h2>
+        </center>
+        <div class="cards">
+            <div class="card" data-id="06-sales-order">
+                <div>
+
+                </div>
+                <p>
+                    <span>06-sales-order.pdf</span>
+                    <a>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+                        </svg>
+                    </a>
+                </p>
+            </div> <!-- .card -->
+            <div class="card" data-id="10-example">
+                <div>
+
+                </div>
+                <p>
+                    <span>10-example.pdf</span>
+                    <a>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+                        </svg>
+                    </a>
+                </p>
+            </div> <!-- .card -->
+            <div class="card" data-id="09-watermark">
+                <div>
+
+                </div>
+                <p>
+                    <span>09-watermark.pdf</span>
+                    <a>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+                        </svg>
+                    </a>
+                </p>
+            </div> <!-- .card -->
+            <div class="card" data-id="07-multi-table">
+                <div>
+
+                </div>
+                <p>
+                    <span>07-multi-table.pdf</span>
+                    <a>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+                        </svg>
+                    </a>
+                </p>
+            </div> <!-- .card -->
+            <div class="card more">
+
+                <a>
+                    <span>More samples</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
+                        <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="preview-placeholder">The result will be displayed here</div>
+
+    <div class="preview-container hidden">
+        <div class="preview-structure">
+            <div class="tabs">
+                <input type="radio" name="tabs" id="tab-html" checked="checked">
+                <label for="tab-html">HTML</label>
+                <div class="tab">
+                    <div class="html"></div>
+                </div>
+
+                <input type="radio" name="tabs" id="tab-json">
+                <label for="tab-json">JSON</label>
+                <div class="tab">
+                    <div class="json"></div>
+                </div>
+            </div>
+        </div>
+        <div class="preview-render">
+            <div class="pagination">
+                <button class="prev">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left" viewBox="0 0 16 16">
+                        <path d="M10 12.796V3.204L4.519 8zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753" />
+                    </svg>
+                </button>
+                <span class="current-page">1</span>/<span class="total-pages">10</span>
+                <button class="next">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right" viewBox="0 0 16 16">
+                        <path d="M6 12.796V3.204L11.481 8zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753" />
+                    </svg>
+                </button>
+            </div>
+            <canvas id="pdf"></canvas>
+        </div>
+    </div>
+
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-logo unsonet-logo"></div>
+            <div class="footer-logo excelsior-logo"></div>
+        </div>
+    </footer>
+
+
+</body>
+
+</html>
