@@ -19,6 +19,7 @@
             var fileInfo = document.querySelector(".file-info");
             var fullPage = document.querySelector(".full-page");
             var fileInput = document.querySelector('input[type="file"]');
+            var preview = document.querySelector('.preview');
 
             var currentPage = 1;
             var totalPages = 1;
@@ -112,16 +113,77 @@
 
             fileInput.addEventListener('change', handleFile, false);
 
+            /**
+             * Updates the loading progress.
+             *
+             * @param {number} progress - value from 0 to 1, where 1 corresponds to 100% completion.
+             * @param {number} duration - animation time in milliseconds.
+             */
+            function updateProgress(progress, duration) {
+                progress = Math.min(Math.max(progress, 0), 1);
+                var loadingElem = document.getElementById('loading');
+                loadingElem.style.transition = 'width ' + duration + 'ms ease';
+                var targetPercentage = progress * 100;
+                loadingElem.style.width = targetPercentage + '%';
+            }
+
+            let firstPageTimestamp = null;
+
+            function onProgress(results) {
+                showLoading(true);
+                var progress = results.currentPage / results.numPages;
+                var currentTimestamp = Date.now();
+                var duration = 500;
+
+                if (results.currentPage === 1 || firstPageTimestamp == null) {
+                    firstPageTimestamp = currentTimestamp;
+                } else if (results.currentPage === 2 && firstPageTimestamp !== null) {
+                    duration = currentTimestamp - firstPageTimestamp;
+                }
+                updateProgress(progress, duration);
+            }
+
+
+            function onSuccess(results) {
+                console.log('results', results);
+                updateProgress(1, 500);
+                setTimeout(() => {
+                    showLoading(false);
+                    firstPageTimestamp = null;
+                }, 1);
+            }
+
+            function onError(error) {
+                console.error(error);
+                setTimeout(() => {
+                    showLoading(false);
+                    firstPageTimestamp = null;
+                }, 1);
+            }
+
+            function showLoading(enabled) {
+                if (enabled) {
+                    if (!preview.classList.contains('dim')) {
+                        preview.classList.add('dim');
+                    }
+                } else {
+                    if (preview.classList.contains('dim')) {
+                        preview.classList.remove('dim');
+                    }
+                }
+            }
+
             async function extractFile(fileByteArray) {
                 try {
-                    let res = await excelsiorPdf.extractorRun(fileByteArray);
+                    updateProgress(0, 0);
+                    showLoading(true);
+                    let res = await excelsiorPdf.extractorRun({ dataArray: fileByteArray, onProgress, onSuccess, onError });
                     excelsiorPdfResults = res
-                    console.log(res);
                     currentPage = 1;
                     totalPages = excelsiorPdfResults.extractorResults.numPages;
                     await setPage(currentPage);
                 } catch (error) {
-                    console.error(error)
+                    onError(error);
                 }
             }
 
@@ -246,14 +308,14 @@
                         next.setAttribute('disabled', true);
                         if (totalPages > 1) {
                             prev.removeAttribute('disabled');
-                        }else{
+                        } else {
                             prev.setAttribute('disabled', true);
                         }
                     } else {
                         prev.removeAttribute('disabled');
                         next.removeAttribute('disabled');
                     }
-                } 
+                }
             }
 
             function initPagination() {
@@ -277,8 +339,6 @@
             setJSONTree();
             initPagination();
 
-
-
         });
 
     </script>
@@ -289,9 +349,27 @@
     <div class="logo-title-container">
         <div></div>
         <div class="logo"></div>
-        <a class="gitlink" href="https://github.com/unsonet/excelsior-pdf">
-            <img class="gitimg" src="src/img/img.jpg" alt="Fork me on GitHub">
-        </a>
+        <div class="links">
+            <a class="soc-link" href="https://github.com/unsonet/excelsior-pdf" target="_blank" rel="noopener noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40px" height="40px" viewBox="0 0 20 20" version="1.1">
+                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="Dribbble-Light-Preview" transform="translate(-140.000000, -7559.000000)" fill="#000000">
+                            <g id="icons" transform="translate(56.000000, 160.000000)">
+                                <path d="M94,7399 C99.523,7399 104,7403.59 104,7409.253 C104,7413.782 101.138,7417.624 97.167,7418.981 C96.66,7419.082 96.48,7418.762 96.48,7418.489 C96.48,7418.151 96.492,7417.047 96.492,7415.675 C96.492,7414.719 96.172,7414.095 95.813,7413.777 C98.04,7413.523 100.38,7412.656 100.38,7408.718 C100.38,7407.598 99.992,7406.684 99.35,7405.966 C99.454,7405.707 99.797,7404.664 99.252,7403.252 C99.252,7403.252 98.414,7402.977 96.505,7404.303 C95.706,7404.076 94.85,7403.962 94,7403.958 C93.15,7403.962 92.295,7404.076 91.497,7404.303 C89.586,7402.977 88.746,7403.252 88.746,7403.252 C88.203,7404.664 88.546,7405.707 88.649,7405.966 C88.01,7406.684 87.619,7407.598 87.619,7408.718 C87.619,7412.646 89.954,7413.526 92.175,7413.785 C91.889,7414.041 91.63,7414.493 91.54,7415.156 C90.97,7415.418 89.522,7415.871 88.63,7414.304 C88.63,7414.304 88.101,7413.319 87.097,7413.247 C87.097,7413.247 86.122,7413.234 87.029,7413.87 C87.029,7413.87 87.684,7414.185 88.139,7415.37 C88.139,7415.37 88.726,7417.2 91.508,7416.58 C91.513,7417.437 91.522,7418.245 91.522,7418.489 C91.522,7418.76 91.338,7419.077 90.839,7418.982 C86.865,7417.627 84,7413.783 84,7409.253 C84,7403.59 88.478,7399 94,7399" id="github-[#142]">
+
+                                </path>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+            </a>
+            <a class="soc-link" href="https://t.me/unsonet" target="_blank" rel="noopener noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 24 24" fill="rgb(51, 144, 236)">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M24 12C24 18.6274 18.6274 24 12 24C5.37258 24 0 18.6274 0 12C0 5.37258 5.37258 0 12 0C18.6274 0 24 5.37258 24 12ZM12.43 8.85893C11.2629 9.3444 8.93015 10.3492 5.43191 11.8733C4.86385 12.0992 4.56628 12.3202 4.53919 12.5363C4.4934 12.9015 4.95073 13.0453 5.57349 13.2411C5.6582 13.2678 5.74598 13.2954 5.83596 13.3246C6.44866 13.5238 7.27284 13.7568 7.70131 13.766C8.08996 13.7744 8.52375 13.6142 9.00266 13.2853C12.2712 11.079 13.9584 9.96381 14.0643 9.93977C14.1391 9.92281 14.2426 9.90148 14.3128 9.96385C14.3829 10.0262 14.3761 10.1443 14.3686 10.176C14.3233 10.3691 12.5281 12.0381 11.5991 12.9018C11.3095 13.171 11.1041 13.362 11.0621 13.4056C10.968 13.5034 10.8721 13.5958 10.78 13.6846C10.2108 14.2333 9.78393 14.6448 10.8036 15.3168C11.2937 15.6397 11.6858 15.9067 12.077 16.1731C12.5042 16.4641 12.9303 16.7543 13.4816 17.1157C13.6221 17.2078 13.7562 17.3034 13.8869 17.3965C14.3841 17.751 14.8308 18.0694 15.3826 18.0186C15.7033 17.9891 16.0345 17.6876 16.2027 16.7884C16.6002 14.6632 17.3816 10.0585 17.5622 8.16098C17.5781 7.99473 17.5582 7.78197 17.5422 7.68858C17.5262 7.59518 17.4928 7.46211 17.3714 7.3636C17.2276 7.24694 17.0057 7.22234 16.9064 7.22408C16.455 7.23204 15.7626 7.47282 12.43 8.85893Z"/>
+                </svg>
+            </a>
+        </div>
+
     </div>
 
     <p class="text">Tired of manually copying data from PDFs? Reclaim your time! Your Exelsior PDF effortlessly pulls tables from your PDFs, delivering accurate data in JSON or HTML - ready for analysis!</p>
@@ -372,7 +450,7 @@
             </div> <!-- .card -->
             <div class="card more">
 
-                <a>
+                <a href="https://github.com/unsonet/excelsior-pdf/tree/main/public/src/pdf" target="_blank" rel="noopener noreferrer">
                     <span>More samples</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5" />
@@ -383,39 +461,47 @@
         </div>
     </div>
 
-    <div class="preview-placeholder">The result will be displayed here</div>
+    <div class="preview">
 
-    <div class="preview-container hidden">
-        <div class="preview-structure">
-            <div class="tabs">
-                <input type="radio" name="tabs" id="tab-html" checked="checked">
-                <label for="tab-html">HTML</label>
-                <div class="tab">
-                    <div class="html"></div>
-                </div>
-
-                <input type="radio" name="tabs" id="tab-json">
-                <label for="tab-json">JSON</label>
-                <div class="tab">
-                    <div class="json"></div>
-                </div>
-            </div>
+        <div id="progressbar">
+            <span id="loading"></span>
+            <div id="load">Loading</div>
         </div>
-        <div class="preview-render">
-            <div class="pagination">
-                <button class="prev">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left" viewBox="0 0 16 16">
-                        <path d="M10 12.796V3.204L4.519 8zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753" />
-                    </svg>
-                </button>
-                <span class="current-page">1</span>/<span class="total-pages">10</span>
-                <button class="next">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right" viewBox="0 0 16 16">
-                        <path d="M6 12.796V3.204L11.481 8zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753" />
-                    </svg>
-                </button>
+
+        <div class="preview-placeholder">The result will be displayed here</div>
+
+        <div class="preview-container hidden">
+            <div class="preview-structure">
+                <div class="tabs">
+                    <input type="radio" name="tabs" id="tab-html" checked="checked">
+                    <label for="tab-html">HTML</label>
+                    <div class="tab">
+                        <div class="html"></div>
+                    </div>
+
+                    <input type="radio" name="tabs" id="tab-json">
+                    <label for="tab-json">JSON</label>
+                    <div class="tab">
+                        <div class="json"></div>
+                    </div>
+                </div>
             </div>
-            <canvas id="pdf"></canvas>
+            <div class="preview-render">
+                <div class="pagination">
+                    <button class="prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left" viewBox="0 0 16 16">
+                            <path d="M10 12.796V3.204L4.519 8zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753" />
+                        </svg>
+                    </button>
+                    <span class="current-page">1</span>/<span class="total-pages">10</span>
+                    <button class="next">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right" viewBox="0 0 16 16">
+                            <path d="M6 12.796V3.204L11.481 8zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753" />
+                        </svg>
+                    </button>
+                </div>
+                <canvas id="pdf"></canvas>
+            </div>
         </div>
     </div>
 
